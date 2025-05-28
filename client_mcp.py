@@ -75,7 +75,7 @@ For non-math queries, answer directly using your knowledge."""),
         if recursion_depth > 3:
             return "Error: Maximum tool calls exceeded"
 
-        # Step 1: Add relevant math context (only if query contains numbers)
+        # Add relevant math context (only if query contains numbers)
         math_context, a, b = await self._get_relevant_addition(query)
         extended_query = (
             f"User Question: {query}\n\n"
@@ -84,19 +84,16 @@ For non-math queries, answer directly using your knowledge."""),
         )
 
         try:
-            # Step 2: Try with agent first
+            #  Try with agent first
             result = await self.agent.ainvoke({"input": extended_query})
             output = result.get("output", "")
 
-            # Step 3: Check if tool should be called
+            # Check if tool should be called
             if isinstance(output, str):
-                # Find the first tool name (other than 'add') that appears in output
                 tool_names = [t.name for t in self.tools if t.name != "add"]
 
-            # Try to find any tool name mentioned in output (case-insensitive)
                 found_tool = None
                 for tool_name in tool_names:
-                    # Simple contains check, you could improve this with regex or parsing
                     if tool_name.lower() in output.lower():
                         found_tool = tool_name
                         break
@@ -117,8 +114,6 @@ For non-math queries, answer directly using your knowledge."""),
             print(f"Tool error, falling back to LLM: {str(e)}")
             llm_response = await self.llm.ainvoke(extended_query)
             return f"[LLM Response] {llm_response.content}"
-
-    # ... (rest of the methods remain the same)
 
     async def chat_loop(self):
         print("Assistant (type 'quit' to exit)")
