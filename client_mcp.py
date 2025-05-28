@@ -53,7 +53,7 @@ For non-math queries, answer directly using your knowledge."""),
         self.agent = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
     def _extract_numbers(self, query: str):
-        parts = re.split(r'\D+', query)  # Split on non-digit chars
+        parts = re.split(r'\D+', query)  
         return [int(p) for p in parts if p.isdigit()]
 
 
@@ -75,7 +75,7 @@ For non-math queries, answer directly using your knowledge."""),
         if recursion_depth > 3:
             return "Error: Maximum tool calls exceeded"
 
-        # Add relevant math context (only if query contains numbers)
+        # Add relevant math context
         math_context, a, b = await self._get_relevant_addition(query)
         extended_query = (
             f"User Question: {query}\n\n"
@@ -99,10 +99,9 @@ For non-math queries, answer directly using your knowledge."""),
                         break
 
                 if found_tool:
-                    # Call the found tool dynamically with a,b as parameters
+                    
                     tool_result = await self.session.call_tool(found_tool, {"a": a, "b": b})
                     new_query = f"{query}\n{found_tool}({a}, {b}) = {tool_result}"
-                    # Recurse with updated query and incremented depth
                     return await self.process_query(new_query, recursion_depth + 1)
             # Clean up the output format
             if isinstance(output, list):
